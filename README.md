@@ -62,7 +62,3 @@ npm run test
 npm run loadtest
 ```
 
-## Resume bullets
-
-- Built ReliefFlow, an emergency resource allocation platform (Next.js, Prisma, PostgreSQL, Redis) with concurrency-safe reservations using Redis distributed locks and SERIALIZABLE Postgres transactions; prevented double-booking under parallel load (≥200 rps) with p95 < 200 ms.
-- Shipped admin scheduling for multi-site inventory, RBAC via NextAuth, idempotent booking APIs, and a cron-driven hold-expiry workflow; added rate limiting and structured audit logs for traceability.
