@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String?
+  email        String?       @unique
+  image        String?
+  passwordHash String?
+  role         Role          @default(RESIDENT)
+  orgId        String?
+  org          Organization? @relation(fields: [orgId], references: [id])
+  reservations Reservation[]
+  holds        ReservationHold[]
+  createdAt    DateTime      @default(now())
+}
+
+model Organization {
+  id        String  @id @default(cuid())
+  name      String
+  sites     Site[]
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
+model Site {
+  id        String  @id @default(cuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id])
+  name      String
+  address   String
+  slots     Slot[]
+  createdAt DateTime @default(now())
+}
+
+model Resource {
+  id        String  @id @default(cuid())
+  name      String
+  unit      String
+  createdAt DateTime @default(now())
+  slots     Slot[]
+}
+
+model Slot {
+  id            String   @id @default(cuid())
+  siteId        String
+  site          Site     @relation(fields: [siteId], references: [id])
+  resourceId    String
+  resource      Resource @relation(fields: [resourceId], references: [id])
+  startsAt      DateTime
+  endsAt        DateTime
+  capacity      Int
+  reservedCount Int      @default(0)
+  reservations  Reservation[]
+  holds         ReservationHold[]
+  createdAt     DateTime @default(now())
+
+  @@index([siteId, startsAt, endsAt])
+  @@index([resourceId])
+}
+
+model Reservation {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  slotId    String
+  slot      Slot      @relation(fields: [slotId], references: [id])
+  qty       Int       @default(1)
+  status    ResStatus @default(CONFIRMED)
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, slotId])
+}
+
+model ReservationHold {
+  id             String   @id @default(cuid())
+  slotId         String
+  slot           Slot     @relation(fields: [slotId], references: [id])
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  qty            Int      @default(1)
+  expiresAt      DateTime
+  idempotencyKey String   @unique
+  createdAt      DateTime @default(now())
+
+  @@index([slotId])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id        String  @id @default(cuid())
+  actorId   String?
+  action    String
+  target    String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+enum Role {
+  RESIDENT
+  ORG_ADMIN
+  SUPERADMIN
+}
+
+enum ResStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+
