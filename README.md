@@ -1,3 +1,18 @@
+## About ReliefFlow
+
+ReliefFlow is a lightweight, local-first MVP for coordinating emergency resources (e.g., shelter beds, supply pickups, clinic appointments) with strong, verifiable concurrency guarantees. It focuses on reliable booking under load by combining Redis-based distributed locks, SERIALIZABLE Postgres transactions, and explicit hold/confirm flows to prevent double-booking.
+
+### Highlights
+- **Concurrency-safe reservations**: Redis per-`slotId` locks, DB `SELECT ... FOR UPDATE`, strict constraints.
+- **Idempotent APIs**: All booking actions accept `idempotencyKey` for safe retries.
+- **Hold → Confirm lifecycle**: Short-lived holds with a background job to reap expirations.
+- **Multi-site inventory**: Organize resources by organization and site; simple admin scheduling.
+- **Security & guardrails**: RBAC via NextAuth, basic rate limiting, and structured auditability.
+- **Tech stack**: Next.js App Router, TypeScript, Prisma + PostgreSQL, Redis.
+
+### Status
+- MVP intended for local development and demos; not production-hardened.
+
 ReliefFlow — Local-only MVP for emergency resource allocation with concurrency-safe reservations.
 
 ## Run locally
